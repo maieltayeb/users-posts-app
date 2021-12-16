@@ -1,4 +1,4 @@
-const User=require('../models/user');
+const User=require('../models/User');
 const customError=require("../helpers/customError")
 module.exports= async (req,res,next)=>{
  const token=req.headers.authorization;

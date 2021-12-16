@@ -4,7 +4,7 @@ const router = express.Router();
 const {check}=require("express-validator")
 const authenticationMiddleware = require("../middlewares/authenticationMiddleware");
 const validationMiddleWare = require("../middlewares/validationMiddleware");
-const User = require("../models/user");
+const User = require("../models/User");
 const customError = require("../helpers/customError");
 
 //get all users
