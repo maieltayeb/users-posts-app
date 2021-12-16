@@ -8,12 +8,13 @@ const util = require('util');
 const customError=require('../helpers/customError');
 require('dotenv').config();
 /////////////
-const jwtSecret=process.env.jwt-secret
+const jwtSecret=process.env.jwtSecret
 const saltRounds=7;
 const userSchema= new mongoose.Schema({
     username:{
         type:String,
         required:true,
+        unique: true
         
     },
     email:{
@@ -46,7 +47,7 @@ toJSON:{
 userSchema.virtual("userPosts",{
     ref:'Post',
     localField:'_id',
-    foreignField:'userId'
+    foreignField:'postedBy'
 })
 
 
@@ -74,9 +75,9 @@ userSchema.methods.generateUserToken=function(){
 
 //fun verfiy 
 userSchema.statics.getUserFromToken= async function(token){
-      const userInstance=this;
+      const user=this;
       const payloadData=await  verfiy(token,jwtSecret);
-      const currentUser=await User.findById(payloadData.id);
+      const currentUser=await user.findById(payloadData.userId);
       if(!currentUser){
      
           throw customError(400,'there is no user wthi these data ')

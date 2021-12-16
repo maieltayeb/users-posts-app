@@ -8,12 +8,11 @@ module.exports = (...validationChecks) => async (req, re, next) => {
             check => check.run(req)
         )
     );
-    const {
-        errors
-    } = validationResult(req);
+    const {errors} = validationResult(req);
     if (!errors.length) {
         return next();
     }
-    throw CustomError('ValidationError', 422, errors)
+    //console.log(errors);
+    throw CustomError( 422,`validation error`, errors)
 
 }

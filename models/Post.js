@@ -12,7 +12,7 @@ const PostSchema= new mongoose.Schema({
         required:true,
         minlength:10
     },
-    userId:{
+    postedBy:{
         type:mongoose.ObjectId,
         ref:'User',
     }

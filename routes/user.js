@@ -1,16 +1,17 @@
 require("express-async-errors");
 const express = require("express");
 const router = express.Router();
+const {check}=require("express-validator")
 const authenticationMiddleware = require("../middlewares/authenticationMiddleware");
 const validationMiddleWare = require("../middlewares/validationMiddleware");
 const User = require("../models/user");
 const customError = require("../helpers/customError");
 
 //get all users
-router.get("/", authenticationMiddleware, async (req, res, next) => {
-  let userList = await User.find();
+router.get("/",authenticationMiddleware, async (req, res, next) => {
+  let userList = await User.find().populate('userPosts');
   if (!userList) {
-    throw customError(400, "get usersdata faild ");
+    throw customError(400, "get users data faild ");
   }
   res.json({ message: "get usersdata sucess ", userList });
 });
@@ -28,15 +29,19 @@ router.get("/:id", async (req, res, next) => {
 router.post(
   "/register",
   validationMiddleWare(
-    check("passward")
-      .isLength({
-        min: 5,
-      })
-      .withMessage("2 chars at least ")
-      .withMessage("must contain a number")
+    check("password")
+      .isLength({min: 2}).withMessage("2 chars at least ")
+      .matches(/\d/).withMessage('must contain a number'),
+      check('email').isEmail().withMessage('Not an email'),
+      
   ),
   async (req, res, next) => {
     let { username, email, password } = req.body;
+    let usersList= await User.find();
+    let userEmail=usersList.find((user)=>user.username===username ||user.email===email);
+    if(userEmail){
+      throw customError(400,"this username or email alraedy exits please insert another one")
+    }
     let newUser = new User({ username, email, password });
     await newUser.save();
     if (!newUser) {
@@ -68,11 +73,9 @@ router.patch(
   authenticationMiddleware,
   validationMiddleWare(
     check("passward")
-      .isLength({
-        min: 5,
-      })
-      .withMessage("2 chars at least ")
-      .withMessage("must contain a number")
+      .isLength({    min: 2  }).withMessage("2 chars at least ")
+      .matches(/\d/).withMessage('must contain a number'),
+      check('email').isEmail().withMessage('Not an email')
   ),
   async (req, res) => {
     let userId = req.params.id;

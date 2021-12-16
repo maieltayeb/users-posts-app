@@ -1,6 +1,6 @@
-require('./db')
 require('dotenv').config
-require('cors')
+require('./db')
+const cors=require('cors')
 require('express-async-errors');
 
 var express = require('express');

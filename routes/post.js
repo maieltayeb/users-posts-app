@@ -9,7 +9,7 @@ const Post = require("../models/Post");
 
 //get all Posts/********************************************** */
 router.get("/", authenticationMiddleware, async (req, res, next) => {
-  let postList = await Post.find().populate("userId");
+  let postList = await Post.find().populate("postedBy");
   if (!postList) {
     throw customError(400, "get all posts failed");
   }
@@ -28,8 +28,13 @@ router.get("/:id",authenticationMiddleware,async (req, res, next) => {
 
 //create new post*******************************************************
 router.post("/newpost", authenticationMiddleware, async (req, res, next) => {
-  let { postTitle, postBody, userId } = req.body;
-  let newPost = new Post({ postTitle, postBody, userId });
+  let { postTitle, postBody} = req.body;
+  //const  {_doc:{_id:userCurrentId}}=req.currentUser
+
+  //let userId=userCurrentId.toHexString()
+  //console.log("eeeeeeeeeeee",req.currentUser)
+  let postedBy=req.currentUser;
+  let newPost = new Post({ postTitle, postBody, postedBy });
   await newPost.save();
   if (!newPost) {
     throw customError(400, "new post created failed");
@@ -44,13 +49,14 @@ router.patch(
   ownerAuthorizationMiddleware,
   async (req, res, next) => {
     let PostId = req.params.id;
-    let { postTitle, postBody, userId } = req.body;
+    let { postTitle, postBody} = req.body;
+   let postedBy=req.currentUser.id;
     let post = await Post.findByIdAndUpdate(
       PostId,
       {
         postTitle,
         postBody,
-        userId,
+        postedBy,
       },
       {
         new: true, // to return new record after updated
